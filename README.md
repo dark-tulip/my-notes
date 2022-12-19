@@ -18,6 +18,12 @@
 - По Primary Key and Unique индекс составляется автоматически
 - SELECT amname FROM pg_am; - какие типы индексов доступны на сервере
 
+#### Show indexes in schema
+```psql
+SELECT *, pg_size_pretty(pg_relation_size(indexrelname::text))
+FROM pg_stat_all_indexes
+WHERE schemaname = 'public';
+```
 #### Index types
 - B-tree сбалансированное дерево, по умолчанию
 Balanced Tree (<, >, <=, >=, =) LIKE (abc% НО НЕ %abc), индексирует NULL
