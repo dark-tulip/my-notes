@@ -1,4 +1,18 @@
 # PostgreSQL
+`sql
+-- нужно для ускорения сортировки в памяти
+SHOW work_mem;
+SET work_mem = "16MB";
+
+-- буфер write ahead lock - журнал пред записи запросов, нужен для ACID, после изменения сбрасываются на диск
+SHOW wal_buffers;
+SET wal_buffers = "8MB";
+
+
+-- буфер postgresql нужен для кеширования (чтобы рабочий набор данных мог находится в кеше)
+SHOW shared_buffers;
+SET wal_buffers = "512MB";
+`
 
 ### Немного про БД
 - WAL - write ahead log. До начала транзакции операция записывается в журнал событий. Нужен для обеспечения ACID 
