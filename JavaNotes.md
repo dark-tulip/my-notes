@@ -18,3 +18,79 @@ SOLID - концепция возникла позже языка
 - Factory (с начала 2000х) - ObjectFactory на все случаи жизни
 - Сервисы по бильнишнству своему синглтоны
 - Дженерик определяется во время runtime-а 
+
+Factory 
+- Централизованное место для создания всех объектов
+- Перед тем как фабрика создаст объект мы можем его настроить с помощью конфига
+
+```Java
+package com.epam;
+
+public class RecommendatorImpl implements Recommendator {
+  @InjectProperty(value = "AAA")
+  private String alcohol;
+
+  @Override
+  public void recommend() {
+    System.out.println("To save from corona drink, " + alcohol);
+  }
+}
+
+package com.epam;
+
+import lombok.SneakyThrows;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
+
+public class ObjectFactory {
+  private static ObjectFactory ourInstance= new ObjectFactory();
+
+  private Config config;
+
+  public static ObjectFactory getInstance() { return ourInstance; }
+
+  private ObjectFactory() {
+    config = new JavaConfig("com.epam", new HashMap<>(Map.of(Policeman.class, PolicemanImpl.class)));
+  }
+
+  @SneakyThrows  // сделать checked exception unchecked-ом
+  public <T> T createObject(Class<T> type) {
+    Class <? extends T> implClass = type;
+    if(type.isInterface()) {
+      implClass = config.getImplClass(type);
+    }
+
+    T t = implClass.getDeclaredConstructor().newInstance();
+
+    for (Field field : t.getClass().getDeclaredFields()) {
+      InjectProperty annotation = field.getAnnotation(InjectProperty.class);
+      
+      // создать мапу из ресурс файла application.properties
+      String path = ClassLoader.getSystemClassLoader().getResource("application.properties").getPath();
+      Stream<String> lines = new BufferedReader(new FileReader(path)).lines();
+      Map<String, String> properties = lines.map(line -> line.split("=")).collect(toMap(arr -> arr[0], arr -> arr[1]));
+
+      if (annotation != null) {
+        String value;
+        
+        // если аннотация пустая берем значение из мапы
+        if (annotation.value().isEmpty()) {
+          value = properties.get(field.getName());
+        } else {
+          value = annotation.value();
+        }
+        field.setAccessible(true);
+        field.set(t, value);  // этот филд не статический, принимает объект филда в который нужно вставить значение
+      }
+    }
+    return t;
+  }
+}
+```
