@@ -22,6 +22,7 @@ SOLID - концепция возникла позже языка
 Factory 
 - Централизованное место для создания всех объектов
 - Перед тем как фабрика создаст объект мы можем его настроить с помощью конфига
+- Фабрика должна отвечать за создание объектов
 
 ```Java
 package com.epam;
@@ -35,7 +36,9 @@ public class RecommendatorImpl implements Recommendator {
     System.out.println("To save from corona drink, " + alcohol);
   }
 }
-
+```
+O - Система открыта для изменений но закрыта для изменения текущей логики
+```
 package com.epam;
 
 import lombok.SneakyThrows;
@@ -50,11 +53,12 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toMap;
 
 public class ObjectFactory {
-  private static ObjectFactory ourInstance= new ObjectFactory();
-
+  private static ObjectFactory ourInstance = new ObjectFactory();
   private Config config;
 
-  public static ObjectFactory getInstance() { return ourInstance; }
+  public static ObjectFactory getInstance() {
+    return ourInstance;
+  }
 
   private ObjectFactory() {
     config = new JavaConfig("com.epam", new HashMap<>(Map.of(Policeman.class, PolicemanImpl.class)));
@@ -62,8 +66,8 @@ public class ObjectFactory {
 
   @SneakyThrows  // сделать checked exception unchecked-ом
   public <T> T createObject(Class<T> type) {
-    Class <? extends T> implClass = type;
-    if(type.isInterface()) {
+    Class<? extends T> implClass = type;
+    if (type.isInterface()) {
       implClass = config.getImplClass(type);
     }
 
@@ -71,7 +75,7 @@ public class ObjectFactory {
 
     for (Field field : t.getClass().getDeclaredFields()) {
       InjectProperty annotation = field.getAnnotation(InjectProperty.class);
-      
+
       // создать мапу из ресурс файла application.properties
       String path = ClassLoader.getSystemClassLoader().getResource("application.properties").getPath();
       Stream<String> lines = new BufferedReader(new FileReader(path)).lines();
@@ -79,9 +83,7 @@ public class ObjectFactory {
 
       if (annotation != null) {
         String value;
-        
-        // если аннотация пустая берем значение из мапы
-        if (annotation.value().isEmpty()) {
+        if (annotation.value().isEmpty()) {  // если аннотация пустая берем значение из мапы
           value = properties.get(field.getName());
         } else {
           value = annotation.value();
