@@ -118,3 +118,9 @@ public class ObjectFactory {
   }
 }
 ```
+
+- Don't call us we we'll call you
+- IoC - нельзя больше создавать обхект через new
+- Нельзя воспитать ребенка пока он не родился - то же что и 
+- Нельзя настроить объект пока он не создался
+- Тут возникает second face constructor - init method (который помечается как @PostConstruct)
