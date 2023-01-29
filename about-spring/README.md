@@ -135,3 +135,24 @@ public class ObjectFactory {
 - Есть CGLIB - который делает прокси с помощью наследования
 - с 99 года библиотека которая дает возможность создать на лету класс (прокси класс) и рассказать какие интерфейсы он должен имплементировать
 - ProxyClass - который генерируется на основе нашего интерфейса на лету
+
+##### Итог, как спринг создает объекты
+```
+ @SneakyThrows  // сделать checked exception unchecked-ом
+  public <T> T createObject(Class<T> implClass) {
+
+    // создает метод
+    T t = create(implClass);
+
+    // настраивает
+    configure(t);
+
+    // донастраивает like BeanPostProcessor
+    invokeInit(implClass, t);
+
+    t = replaceWithProxyIfNeeded(implClass, t);
+
+    // Возращает настроенный объект
+    return t;
+  }
+```
