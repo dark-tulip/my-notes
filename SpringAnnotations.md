@@ -33,5 +33,69 @@ public class MySingleton {
 - Проблемы с многопоточностью (получим какой то даблтон или триплтон)
 3. Junior Software Engineer
 ```
+public class MySingleton {
+  private static MySingleton singleton;
+  private MySingleton() {}
 
+  // Make it synchronized!
+  public synchronized static MySingleton getInstance() {
+    if (singleton == null) {
+      singleton = new MySingleton();
+    }
+    return singleton;
+  }
+}
 ```
+- А Перформанс?
+4. Senior Software Engineer
+- лочим не метод, а только создание самого инстанса
+- Out of order exceution - оптимизация чтобы безконца не класть в хип, а вычислить в стеке и только потом вставить (тут уже второй if безсмысленный - оптимизация его нафиг выкинет)
+- Два основных вида памяти (Стэк и Хип)
+- Хип может только читать и записывать
+```Java
+  // Make INIT synchronized!
+  public  static MySingleton getInstance() {
+    if (singleton == null) {  // первый чек чтобы зайти в синхронизированный блок
+      synchronized (MySingleton.class) {
+        // нужен дабл чек чтобы понять есть ли другой залоченный поток, который хочет создать сингльтон
+        if(singleton == null) {
+          singleton = new MySingleton();
+        }
+      }
+    }
+    return singleton;
+  }
+```
+5. Lead Software Engineer
+```
+// use volatile
+private static volatile MySingleton singleton;  // не нужно включать оптимизацию, но будет работать медленней (Но все же есть баги в JVM)
+  private MySingleton() {}
+
+  public  static MySingleton getInstance() {
+    if (singleton == null) { 
+      synchronized (MySingleton.class) {
+        if(singleton == null) {
+          singleton = new MySingleton();
+        }
+      }
+    }
+    return singleton;
+  }
+```
+- eager Singleton - инициализируется когда загружается класс сиингльтона
+- Сингльтон через enum
+```Java
+public enum SingletonEnum {
+  INSTANCE;
+  public void doWork() {
+    System.out.println("INSTACNCE IS working");
+  }
+
+  public static void main(String[] args) {
+    SingletonEnum.INSTANCE.doWork();
+  }
+}
+```
+Что именно является антипаттерном?
+- Тестирование 
