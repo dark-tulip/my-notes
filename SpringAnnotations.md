@@ -67,7 +67,7 @@ public class MySingleton {
   }
 ```
 5. Lead Software Engineer
-```
+```Java
 // use volatile
 private static volatile MySingleton singleton;  // не нужно включать оптимизацию, но будет работать медленней (Но все же есть баги в JVM)
   private MySingleton() {}
@@ -109,9 +109,24 @@ public enum SingletonEnum {
 - Fail fast (Обнарудить ошибку во время компиляции дешевле чем на запущенном проде)
 
 Зачем же нужны ленивые синглтоны?
-- Lazy injection - since 4.3
+- Lazy injection - since 4.3 (Service, Bean, Component)
 - @Lazy вместе с @Autowired
 - Когда используейтся очень редкий сервис
+- I need a rocket when in need
+- Не нужно создавать пока его никто об этом не попросит
+- 
 
 Соблазн switch-case как пизанская башня
 - какой может случиться баг в проде изза switch-case? - забытый break
+
+##### what makes Singleton antipattern?
+- You should use Power Mock
+- Dependency of business-logic and realization
+- Home based singleton
+
+@Component
+@Repository - exceptions from db (proxy for exceptions handler - бин будет запроксирован и оборачивать exceptions)
+@Controller vs @RestController - диспатчер сервлет; строющий роутин, запрашивает все бины помеченные контроллером и создает бины
+- задача контроллера вернуть страницу, или модельки (старый вариант)
+- RestController понимает что нужно вернуть работать с запросами и ответами
+
