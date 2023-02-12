@@ -114,7 +114,12 @@ public enum SingletonEnum {
 - Когда используейтся очень редкий сервис
 - I need a rocket when in need
 - Не нужно создавать пока его никто об этом не попросит
-- 
+- Проблема ленивых синглтонов в fast fail - пусть все грохнется сразу, чтобы мы это заметили
+
+###### How to use lazy scanning?
+`@ComponentScan(lazyInit = true)` - since 4.1
+or in application properties
+`spring.main.lazy-initialization = true`
 
 Соблазн switch-case как пизанская башня
 - какой может случиться баг в проде изза switch-case? - забытый break
